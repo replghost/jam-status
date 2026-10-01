@@ -89,7 +89,7 @@ localButton.addEventListener("click", async () => {
   try {
     const result = await probeAll({ retries: 1, retryDelayMs: 6_500 });
     globalThis.__jamStatusLocalResult = result;
-    comparison.textContent = comparePaths(external, result);
+    comparison.textContent = comparePaths(external, result, navigator.userAgent);
     renderLocalResult(result);
   } catch (error) {
     comparison.textContent = `LOCAL MONITOR ERROR — ${error instanceof Error ? error.message : String(error)}`;

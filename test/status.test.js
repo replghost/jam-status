@@ -77,3 +77,20 @@ test("local validator diagnostics identify the failed endpoint phase and reason"
     detail: "up0_announcement timed out after 12000 ms"
   });
 });
+
+test("all pre-transport failures on Safari are inconclusive rather than network down", () => {
+  const external = { summary: { raw_state: "operational" } };
+  const local = {
+    summary: { raw_state: "down", configured: 6, announcing: 0 },
+    validators: Array.from({ length: 6 }, (_, id) => ({
+      id,
+      webtransport: { ok: false },
+      error: { phase: "webtransport_ready", message: "Opening handshake failed." }
+    }))
+  };
+  const mobileSafari = "Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 Version/26.0 Mobile/15E148 Safari/604.1";
+  assert.equal(
+    comparePaths(external, local, mobileSafari),
+    "SAFARI/IOS TEST INCONCLUSIVE — CERTIFICATE-PINNED WEBTRANSPORT FAILED BEFORE JAM UP0; EXTERNAL RESULT ONLY"
+  );
+});

@@ -63,7 +63,16 @@ export function derive(records, now = Date.now()) {
   return { state, latest, metrics, incidents };
 }
 
-export function comparePaths(external, local) {
+export function comparePaths(external, local, userAgent = "") {
+  const safariFamily = /iPhone|iPad|iPod/.test(userAgent)
+    || (/Safari\//.test(userAgent) && !/Chrome\/|Chromium\/|Edg\/|OPR\//.test(userAgent));
+  const allFailedBeforeTransport = local.validators?.length > 0
+    && local.validators.every((validator) =>
+      !validator.webtransport?.ok
+      && (validator.error?.phase === "unsupported" || validator.error?.phase === "webtransport_ready"));
+  if (safariFamily && allFailedBeforeTransport) {
+    return "SAFARI/IOS TEST INCONCLUSIVE — CERTIFICATE-PINNED WEBTRANSPORT FAILED BEFORE JAM UP0; EXTERNAL RESULT ONLY";
+  }
   if (local.validators?.length > 0 && local.validators.every((validator) => validator.error?.phase === "unsupported")) {
     return "THIS BROWSER DOES NOT EXPOSE WEBTRANSPORT — EXTERNAL RESULT ONLY";
   }
