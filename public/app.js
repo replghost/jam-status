@@ -2,6 +2,7 @@ import { probeAll } from "./src/probe.js";
 import { comparePaths, describeValidatorProbe } from "./src/status.js";
 
 const byId = (id) => document.getElementById(id);
+const dataRoot = (document.documentElement.dataset.statusRoot ?? "./data").replace(/\/$/, "");
 const stateLabel = byId("state-label");
 const stateDetail = byId("state-detail");
 const stateMark = byId("state-mark");
@@ -101,8 +102,8 @@ localButton.addEventListener("click", async () => {
 
 try {
   const [statusResponse, historyResponse] = await Promise.all([
-    fetch("./data/status.json", { cache: "no-store" }),
-    fetch("./data/history.jsonl", { cache: "no-store" })
+    fetch(`${dataRoot}/status.json`, { cache: "no-store" }),
+    fetch(`${dataRoot}/history.jsonl`, { cache: "no-store" })
   ]);
   if (!statusResponse.ok) throw new Error(`status HTTP ${statusResponse.status}`);
   renderStatus(await statusResponse.json());
