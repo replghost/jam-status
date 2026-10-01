@@ -1,0 +1,55 @@
+name: Probe and publish status
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: jam-status-pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+  pages: write
+  id-token: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Restore rolling public data
+        run: |
+          mkdir -p probe-output
+          curl -fsS --retry 2 https://replghost.github.io/jam-status/data/history.jsonl -o probe-output/history.jsonl || true
+          curl -fsS --retry 2 https://replghost.github.io/jam-status/data/status.json -o probe-output/previous-status.json || true
+      - name: Probe hosted app and JAM validators
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+          PROBE_ID: github-actions
+        run: npm run probe
+      - name: Aggregate status and rolling history
+        run: npm run build:status
+      - name: Open or resolve incident
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/update-incident.mjs
+      - name: Build static dashboard
+        run: npm run build:site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

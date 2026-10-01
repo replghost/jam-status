@@ -1,0 +1,19 @@
+{
+  "name": "jam-status",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "probe": "node scripts/run-probe.mjs",
+    "build:status": "node scripts/update-status.mjs",
+    "build:site": "node scripts/build-site.mjs",
+    "serve": "node scripts/serve.mjs public",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "puppeteer-core": "^24.37.5"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

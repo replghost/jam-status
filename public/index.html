@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Independent browser-path status for the jam-public-devnet validators used by jamlc.paseo.fyi.">
+  <title>Is JAM Down for Everyone or Just Me?</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="eyebrow">[ EXTERNAL TELEMETRY / JAM-PUBLIC-DEVNET ]</div>
+    <h1>IS JAM DOWN<br>FOR EVERYONE<br>OR JUST ME?</h1>
+    <div class="hero-state" aria-live="polite">
+      <span id="state-mark" class="state-mark">?</span>
+      <div><strong id="state-label">LOADING</strong><small id="state-detail">READING THE LATEST EXTERNAL PROBE</small></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="metrics" aria-label="Network summary">
+      <div><span>WEBTRANSPORT</span><output id="reachable">—/6</output></div>
+      <div><span>JAM UP0</span><output id="protocol">—/6</output></div>
+      <div><span>ANNOUNCING</span><output id="announcing">—/6</output></div>
+      <div><span>LAST CHECK</span><output id="last-check">—</output></div>
+    </section>
+
+    <section class="panel explanation">
+      <header><span>01</span><h2>COMPARE YOUR PATH</h2></header>
+      <div class="explanation-grid">
+        <p>The published result comes from an external GitHub-hosted Chromium probe. Run the same certificate-pinned WebTransport and JAM UP0 check from this browser to compare paths.</p>
+        <div class="local-action">
+          <button id="run-local" type="button">RUN TEST FROM THIS BROWSER &gt;&gt;&gt;</button>
+          <output id="comparison" aria-live="polite">NO LOCAL RESULT</output>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <header><span>02</span><h2>VALIDATOR ARRAY</h2></header>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>UNIT</th><th>ENDPOINT</th><th>WEBTRANSPORT</th><th>UP0</th><th>ANNOUNCEMENT</th><th>LATENCY</th></tr></thead>
+          <tbody id="validators"><tr><td colspan="6">WAITING FOR DATA</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel history-panel">
+      <header><span>03</span><h2>ROLLING AVAILABILITY</h2></header>
+      <div class="availability" id="availability"></div>
+      <div class="timeline" id="timeline" aria-label="Recent external observations"></div>
+    </section>
+
+    <section class="panel details">
+      <header><span>04</span><h2>WHAT THIS PROVES</h2></header>
+      <div class="details-grid">
+        <p><b>SITE</b> — the public <a href="https://jamlc.paseo.fyi/">jamlc.paseo.fyi</a> shell answers.</p>
+        <p><b>TRANSPORT</b> — Chromium completes WebTransport using the validators’ reconstructed P-256 certificate pins.</p>
+        <p><b>PROTOCOL</b> — each endpoint exchanges a framed JAM UP0 handshake and emits a live block announcement.</p>
+        <p><b>LIMIT</b> — external probes sample one path. The visitor test adds your path; neither result represents every ISP or region.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>MONITOR / GITHUB ACTIONS / 5-MINUTE TARGET</span>
+    <a href="https://github.com/replghost/jam-status">SOURCE + RAW JSONL</a>
+  </footer>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

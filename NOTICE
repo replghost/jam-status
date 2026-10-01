@@ -1,0 +1,4 @@
+The deterministic PolkaJAM WebTransport certificate reconstruction in
+src/certificates.js is adapted from paritytech/host-rust-core's
+js/packages/truapi/src/jam-peer-transport-cert.ts, MIT licensed,
+Copyright (c) 2026 Parity Technologies.
