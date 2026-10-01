@@ -34,7 +34,7 @@ h2 { margin: 0; padding: 14px 20px 10px; font-size: clamp(1.6rem, 4vw, 4rem); le
 .explanation-grid > *, .details-grid > * { margin: 0; padding: 28px 24px; border-right: 1px solid var(--line); font-size: 1rem; line-height: 1.45; }
 .local-action { display: grid; gap: 14px; }
 button { appearance: none; border: 2px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); padding: 16px; font: 800 12px/1 ui-monospace, monospace; letter-spacing: .04em; cursor: pointer; text-align: left; }
-button:hover { background: var(--alert); border-color: var(--alert); }
+button:hover { background: transparent; color: var(--ink); }
 button:disabled { cursor: wait; opacity: .55; }
 #comparison { font: 700 12px/1.4 ui-monospace, monospace; min-height: 3em; }
 .table-wrap { overflow-x: auto; }
