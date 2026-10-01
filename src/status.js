@@ -62,3 +62,22 @@ export function derive(records, now = Date.now()) {
   }
   return { state, latest, metrics, incidents };
 }
+
+export function comparePaths(external, local) {
+  if (local.validators?.length > 0 && local.validators.every((validator) => validator.error?.phase === "unsupported")) {
+    return "THIS BROWSER DOES NOT EXPOSE WEBTRANSPORT — EXTERNAL RESULT ONLY";
+  }
+
+  const externalState = external?.summary?.raw_state ?? "unknown";
+  const localState = local.summary?.raw_state ?? "unknown";
+  if (externalState === localState) {
+    if (localState === "down") return "EXTERNAL + LOCAL DOWN — LIKELY SHARED VALIDATOR/VPS OUTAGE";
+    return `EXTERNAL ${externalState.toUpperCase()}, LOCAL ${localState.toUpperCase()} — PATHS AGREE`;
+  }
+  if (localState === "down") return "EXTERNAL UP, LOCAL DOWN — LIKELY BROWSER/ROUTER/ISP PATH";
+  if (externalState === "down") return "EXTERNAL DOWN, LOCAL UP — MONITOR OR REGIONAL PATH ISSUE";
+
+  const announcing = local.summary?.announcing ?? 0;
+  const configured = local.summary?.configured ?? local.validators?.length ?? 0;
+  return `EXTERNAL ${externalState.toUpperCase()}, LOCAL ${localState.toUpperCase()} — PARTIAL PATH DIFFERENCE (${announcing}/${configured} ANNOUNCING LOCALLY)`;
+}

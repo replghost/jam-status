@@ -1,4 +1,5 @@
 import { probeAll } from "./src/probe.js";
+import { comparePaths } from "./src/status.js";
 
 const byId = (id) => document.getElementById(id);
 const stateLabel = byId("state-label");
@@ -53,17 +54,6 @@ function renderStatus(status) {
   }).join("");
 }
 
-function compare(local) {
-  if (local.validators.every((validator) => validator.error?.phase === "unsupported")) {
-    return "THIS BROWSER DOES NOT EXPOSE WEBTRANSPORT — EXTERNAL RESULT ONLY";
-  }
-  const externalState = external?.summary?.raw_state ?? "unknown";
-  const localState = local.summary.raw_state;
-  if (externalState === "down" && localState === "down") return "EXTERNAL + LOCAL DOWN — LIKELY SHARED VALIDATOR/VPS OUTAGE";
-  if (externalState !== "down" && localState === "down") return "EXTERNAL UP, LOCAL DOWN — LIKELY BROWSER/ROUTER/ISP PATH";
-  if (externalState === "down" && localState !== "down") return "EXTERNAL DOWN, LOCAL UP — MONITOR OR REGIONAL PATH ISSUE";
-  return `EXTERNAL ${externalState.toUpperCase()}, LOCAL ${localState.toUpperCase()} — PATHS AGREE`;
-}
 
 localButton.addEventListener("click", async () => {
   localButton.disabled = true;
@@ -72,7 +62,7 @@ localButton.addEventListener("click", async () => {
   try {
     const result = await probeAll();
     globalThis.__jamStatusLocalResult = result;
-    comparison.textContent = compare(result);
+    comparison.textContent = comparePaths(external, result);
   } catch (error) {
     comparison.textContent = `LOCAL MONITOR ERROR — ${error instanceof Error ? error.message : String(error)}`;
   } finally {

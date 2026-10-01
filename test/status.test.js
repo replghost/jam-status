@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { derive } from "../src/status.js";
+import { comparePaths, derive } from "../src/status.js";
 
 const base = Date.parse("2026-10-01T00:00:00Z");
 function record(minutes, state) {
@@ -40,4 +40,22 @@ test("an incident requires two healthy observations to resolve", () => {
 test("stale data is unknown rather than down", () => {
   const result = derive([record(0, "operational")], base + 16 * 60_000);
   assert.equal(result.state, "unknown");
+});
+
+test("different non-down path states report the local validator count", () => {
+  const external = { summary: { raw_state: "operational", configured: 6, announcing: 6 } };
+  const local = {
+    summary: { raw_state: "degraded", configured: 6, announcing: 5 },
+    validators: Array.from({ length: 6 }, () => ({ error: null }))
+  };
+  assert.equal(
+    comparePaths(external, local),
+    "EXTERNAL OPERATIONAL, LOCAL DEGRADED — PARTIAL PATH DIFFERENCE (5/6 ANNOUNCING LOCALLY)"
+  );
+});
+
+test("matching path states are the only non-down states labeled as agreeing", () => {
+  const external = { summary: { raw_state: "degraded" } };
+  const local = { summary: { raw_state: "degraded" }, validators: [{}] };
+  assert.match(comparePaths(external, local), /PATHS AGREE$/);
 });
