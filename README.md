@@ -2,7 +2,9 @@
 
 Independent browser-path monitoring for the six `jam-public-devnet` validators used by [jamlc.paseo.fyi](https://jamlc.paseo.fyi/).
 
-**Live status:** https://replghost.github.io/jam-status/
+**Canonical status:** https://replghost.github.io/jam-status/
+
+**DotNS alias:** `jamstatus.paseo` — [paseo.fyi](https://jamstatus.paseo.fyi/) / [paseo.li](https://jamstatus.paseo.li/)
 
 The monitor distinguishes four layers:
 
