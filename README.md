@@ -58,6 +58,18 @@ npm run serve
 
 The live probe always writes an observation, including outages. Validator downtime does not make the workflow fail before the down state can be published. Internal monitor failures are recorded as `unknown`.
 
+## Browser compatibility
+
+The publishing workflow uses Chrome as the availability reference. A separate daily compatibility workflow runs the full certificate-pinned WebTransport, JAM UP0 handshake and announcement probe in current Chrome and Firefox, retries failed validators up to three times after 6.5 seconds, fails unless all six announce, and uploads each raw observation without changing public status or incidents.
+
+Mobile engines remain release checks because GitHub-hosted Linux runners do not provide representative Android Chrome or Apple Network.framework:
+
+- current Chrome on a physical Android device;
+- Safari on a physical iPhone or iPad running iOS 26.4 or newer;
+- Safari on macOS 26.4 or newer.
+
+The iOS Simulator is useful for regression testing but does not replace a physical-device run. WebKitGTK on Linux is not a supported WebTransport target; its rendering can be tested, but it does not establish Safari transport compatibility.
+
 ## Network membership
 
 This monitor observes a fixed development network, not a permissionless validator pool. Its six random validator keysets and addresses were installed in genesis. Other clients may connect as ordinary peers, but a node does not become a validator by connecting. JAM supports validator-set rotation through the privileged on-chain `designate` service and epoch transitions; this development chain did not install a public admission or staking mechanism.
