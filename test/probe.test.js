@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { framed, parsePeerHandshake, probeValidator } from "../src/probe.js";
+import { framed, parsePeerHandshake, probeAll, probeValidator } from "../src/probe.js";
 import { NETWORK } from "../src/network.js";
 
 function u32(bytes, offset, value) {
@@ -49,6 +49,44 @@ test("validator probe proves WebTransport, UP0 handshake, and announcement", asy
     assert.equal(result.up0.handshake_finalized_slot, 91);
     assert.equal(result.up0.headerSlot, 95);
     assert.equal(result.up0.finalizedSlot, 94);
+  } finally {
+    globalThis.WebTransport = original;
+  }
+});
+
+test("browser probe retries only validators that failed the first announcement path", async () => {
+  const bytes = new Uint8Array([...framed(peerHandshake(91)), ...framed(announcement(95, 94))]);
+  let connections = 0;
+  class FlakyWebTransport {
+    constructor() {
+      connections += 1;
+      this.ready = connections <= 2
+        ? Promise.reject(new Error("Opening handshake failed."))
+        : Promise.resolve();
+    }
+    async createBidirectionalStream() {
+      return {
+        writable: new WritableStream({ write() {} }),
+        readable: new ReadableStream({ start(controller) { controller.enqueue(bytes); controller.close(); } })
+      };
+    }
+    close() {}
+  }
+  const original = globalThis.WebTransport;
+  globalThis.WebTransport = FlakyWebTransport;
+  try {
+    const result = await probeAll({
+      retries: 1,
+      retryDelayMs: 0,
+      dialTimeoutMs: 50,
+      streamTimeoutMs: 50,
+      announcementTimeoutMs: 50
+    });
+    assert.equal(result.summary.announcing, 6);
+    assert.equal(connections, 8);
+    assert.equal(result.validators[0].attempts.length, 2);
+    assert.equal(result.validators[1].attempts.length, 2);
+    assert.equal(result.validators[2].attempts, undefined);
   } finally {
     globalThis.WebTransport = original;
   }

@@ -37,6 +37,12 @@ button { appearance: none; border: 2px solid var(--ink); border-radius: 0; backg
 button:hover { background: transparent; color: var(--ink); }
 button:disabled { cursor: wait; opacity: .55; }
 #comparison { font: 700 12px/1.4 ui-monospace, monospace; min-height: 3em; }
+.local-details { border-top: 1px solid var(--line); padding-top: 14px; }
+.local-details h3 { margin: 0 0 8px; font: 800 12px/1 ui-monospace, monospace; letter-spacing: .08em; }
+.local-validator { display: grid; gap: 4px; padding: 10px 0; border-top: 1px solid #bbb9b0; }
+.local-validator b, .local-validator span, .local-details small { font: 700 10px/1.4 ui-monospace, monospace; }
+.local-validator span { overflow-wrap: anywhere; }
+.local-details small { display: block; margin-top: 10px; color: var(--muted); }
 .table-wrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; min-width: 760px; font: 12px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; }
 th, td { padding: 14px 16px; text-align: left; border-right: 1px solid var(--line); border-bottom: 1px solid #bbb9b0; }

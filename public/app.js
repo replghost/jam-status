@@ -1,5 +1,5 @@
 import { probeAll } from "./src/probe.js";
-import { comparePaths } from "./src/status.js";
+import { comparePaths, describeValidatorProbe } from "./src/status.js";
 
 const byId = (id) => document.getElementById(id);
 const stateLabel = byId("state-label");
@@ -8,6 +8,8 @@ const stateMark = byId("state-mark");
 const validatorsBody = byId("validators");
 const localButton = byId("run-local");
 const comparison = byId("comparison");
+const localDetails = byId("local-details");
+const localValidators = byId("local-validators");
 let external = null;
 
 function age(iso) {
@@ -19,6 +21,29 @@ function age(iso) {
 
 function mark(ok, yes = "PASS", no = "FAIL") {
   return `<span class="${ok ? "pass" : "fail"}">${ok ? yes : no}</span>`;
+}
+
+function renderLocalResult(result) {
+  localValidators.replaceChildren(...result.validators.map((validator) => {
+    const description = describeValidatorProbe(validator);
+    const attempts = (validator.attempts ?? [validator]).map(describeValidatorProbe);
+    const status = attempts.length > 1
+      ? description.ok ? "PASS ON RETRY" : `FAIL AFTER ${attempts.length} ATTEMPTS`
+      : description.ok ? "PASS" : "FAIL";
+    const evidence = attempts.length > 1
+      ? attempts.map((attempt, index) => `${index === 0 ? "FIRST" : "RETRY"} ${attempt.stage}: ${attempt.detail}`).join(" / ")
+      : `${description.stage} · ${description.detail}`;
+    const row = document.createElement("div");
+    row.className = `local-validator ${description.ok ? "pass" : "fail"}`;
+
+    const identity = document.createElement("b");
+    identity.textContent = `V-${String(validator.id).padStart(2, "0")} / ${validator.endpoint}`;
+    const outcome = document.createElement("span");
+    outcome.textContent = `${status} · ${evidence}`;
+    row.append(identity, outcome);
+    return row;
+  }));
+  localDetails.hidden = false;
 }
 
 function renderStatus(status) {
@@ -58,11 +83,14 @@ function renderStatus(status) {
 localButton.addEventListener("click", async () => {
   localButton.disabled = true;
   localButton.textContent = "TESTING SIX VALIDATORS…";
-  comparison.textContent = "WEBTRANSPORT + JAM UP0 MAY TAKE UP TO 30 SECONDS";
+  comparison.textContent = "WEBTRANSPORT + JAM UP0 MAY TAKE UP TO 35 SECONDS";
+  localDetails.hidden = true;
+  localValidators.replaceChildren();
   try {
-    const result = await probeAll();
+    const result = await probeAll({ retries: 1, retryDelayMs: 6_500 });
     globalThis.__jamStatusLocalResult = result;
     comparison.textContent = comparePaths(external, result);
+    renderLocalResult(result);
   } catch (error) {
     comparison.textContent = `LOCAL MONITOR ERROR — ${error instanceof Error ? error.message : String(error)}`;
   } finally {

@@ -11,7 +11,7 @@ The monitor distinguishes four layers:
 3. the endpoint exchanges a framed JAM UP0 handshake;
 4. the endpoint emits a live block announcement.
 
-A scheduled GitHub Actions runner checks every five minutes and publishes a rolling 90-day JSONL history and static dashboard to GitHub Pages. Two consecutive all-validator failures declare an incident; two consecutive non-down observations resolve it. The dashboard's **Run test from this browser** action executes the same WebTransport and UP0 check from the visitor's network.
+A scheduled GitHub Actions runner checks every five minutes and publishes a rolling 90-day JSONL history and static dashboard to GitHub Pages. Two consecutive all-validator failures declare an incident; two consecutive non-down observations resolve it. The dashboard's **Run test from this browser** action executes the same WebTransport and UP0 check from the visitor's network. It retries only failed validators once after 6.5 seconds, then reports both attempts and their exact failure phases.
 
 ## Status interpretation
 

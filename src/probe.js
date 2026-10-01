@@ -165,7 +165,23 @@ export async function probeValidator(validator, options = {}) {
 }
 
 export async function probeAll(options = {}) {
-  const validators = await Promise.all(NETWORK.validators.map((validator) => probeValidator(validator, options)));
+  const { retries = 0, retryDelayMs = 1_000, ...probeOptions } = options;
+  const validatorsById = new Map(NETWORK.validators.map((validator) => [validator.id, validator]));
+  let validators = await Promise.all(NETWORK.validators.map((validator) => probeValidator(validator, probeOptions)));
+
+  for (let retry = 0; retry < retries; retry += 1) {
+    const failed = validators.filter((validator) => !validator.up0.announcement);
+    if (failed.length === 0) break;
+    if (retryDelayMs > 0) await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+
+    const retried = await Promise.all(failed.map((prior) => probeValidator(validatorsById.get(prior.id), probeOptions)));
+    const replacements = new Map(retried.map((result, index) => {
+      const prior = failed[index];
+      return [result.id, { ...result, attempts: [...(prior.attempts ?? [prior]), result] }];
+    }));
+    validators = validators.map((validator) => replacements.get(validator.id) ?? validator);
+  }
+
   const reachable = validators.filter((validator) => validator.webtransport.ok).length;
   const protocol = validators.filter((validator) => validator.up0.handshake).length;
   const announcing = validators.filter((validator) => validator.up0.announcement).length;

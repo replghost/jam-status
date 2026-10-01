@@ -32,12 +32,17 @@
         <div class="local-action">
           <button id="run-local" type="button">RUN TEST FROM THIS BROWSER &gt;&gt;&gt;</button>
           <output id="comparison" aria-live="polite">NO LOCAL RESULT</output>
+          <div id="local-details" class="local-details" hidden>
+            <h3>LOCAL BROWSER RESULT</h3>
+            <div id="local-validators"></div>
+            <small>A local failure describes this browser’s route. It does not by itself prove that a validator is down.</small>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="panel">
-      <header><span>02</span><h2>VALIDATOR ARRAY</h2></header>
+      <header><span>02</span><h2>EXTERNAL VALIDATOR ARRAY</h2></header>
       <div class="table-wrap">
         <table>
           <thead><tr><th>UNIT</th><th>ENDPOINT</th><th>WEBTRANSPORT</th><th>UP0</th><th>ANNOUNCEMENT</th><th>LATENCY</th></tr></thead>

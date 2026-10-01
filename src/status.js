@@ -81,3 +81,16 @@ export function comparePaths(external, local) {
   const configured = local.summary?.configured ?? local.validators?.length ?? 0;
   return `EXTERNAL ${externalState.toUpperCase()}, LOCAL ${localState.toUpperCase()} — PARTIAL PATH DIFFERENCE (${announcing}/${configured} ANNOUNCING LOCALLY)`;
 }
+
+export function describeValidatorProbe(validator) {
+  if (validator.up0?.announcement) {
+    return { ok: true, stage: "ANNOUNCEMENT", detail: `${validator.duration_ms} MS` };
+  }
+
+  const error = validator.up0?.announcement_error ?? validator.error;
+  return {
+    ok: false,
+    stage: (error?.phase ?? "unknown").replaceAll("_", " ").toUpperCase(),
+    detail: error?.message ?? "Probe ended before a block announcement"
+  };
+}

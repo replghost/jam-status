@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { comparePaths, derive } from "../src/status.js";
+import { comparePaths, derive, describeValidatorProbe } from "../src/status.js";
 
 const base = Date.parse("2026-10-01T00:00:00Z");
 function record(minutes, state) {
@@ -58,4 +58,22 @@ test("matching path states are the only non-down states labeled as agreeing", ()
   const external = { summary: { raw_state: "degraded" } };
   const local = { summary: { raw_state: "degraded" }, validators: [{}] };
   assert.match(comparePaths(external, local), /PATHS AGREE$/);
+});
+
+test("local validator diagnostics identify the failed endpoint phase and reason", () => {
+  assert.deepEqual(describeValidatorProbe({
+    duration_ms: 12_003,
+    up0: {
+      handshake: true,
+      announcement: false,
+      announcement_error: {
+        phase: "up0_announcement",
+        message: "up0_announcement timed out after 12000 ms"
+      }
+    }
+  }), {
+    ok: false,
+    stage: "UP0 ANNOUNCEMENT",
+    detail: "up0_announcement timed out after 12000 ms"
+  });
 });
