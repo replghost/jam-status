@@ -1,5 +1,5 @@
-import { probeAll } from "./src/probe.js";
-import { comparePaths, describeValidatorProbe } from "./src/status.js";
+import { probeAll } from "./probe.js";
+import { comparePaths, describeValidatorProbe } from "./status.js";
 
 const byId = (id) => document.getElementById(id);
 const dataRoot = (document.documentElement.dataset.statusRoot ?? "./data").replace(/\/$/, "");
