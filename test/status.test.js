@@ -1,6 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { comparePaths, derive, describeValidatorProbe } from "../src/status.js";
+import {
+  comparePaths,
+  derive,
+  describeValidatorProbe,
+  isSafariProbeInconclusive,
+  isWebTransportUnavailable
+} from "../src/status.js";
 
 const base = Date.parse("2026-10-01T00:00:00Z");
 function record(minutes, state) {
@@ -89,8 +95,25 @@ test("all pre-transport failures on Safari are inconclusive rather than network 
     }))
   };
   const mobileSafari = "Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 Version/26.0 Mobile/15E148 Safari/604.1";
+  assert.equal(isSafariProbeInconclusive(local, mobileSafari), true);
   assert.equal(
     comparePaths(external, local, mobileSafari),
-    "SAFARI/IOS TEST INCONCLUSIVE — CERTIFICATE-PINNED WEBTRANSPORT FAILED BEFORE JAM UP0; EXTERNAL RESULT ONLY"
+    "SAFARI/IOS TEST INCONCLUSIVE — WEBTRANSPORT HTTP/3 NEGOTIATION FAILED BEFORE JAM UP0; EXTERNAL RESULT ONLY"
+  );
+});
+
+test("a browser without WebTransport is unavailable, not a Safari negotiation failure", () => {
+  const local = {
+    validators: [{
+      webtransport: { ok: false },
+      error: { phase: "unsupported", message: "WebTransport is unavailable in this browser" }
+    }]
+  };
+  const safari = "Mozilla/5.0 AppleWebKit/605.1.15 Version/26.6 Safari/605.1.15";
+  assert.equal(isSafariProbeInconclusive(local, safari), false);
+  assert.equal(isWebTransportUnavailable(local), true);
+  assert.equal(
+    comparePaths({ summary: { raw_state: "operational" } }, local, safari),
+    "THIS BROWSER DOES NOT EXPOSE WEBTRANSPORT — EXTERNAL RESULT ONLY"
   );
 });

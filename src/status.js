@@ -63,17 +63,25 @@ export function derive(records, now = Date.now()) {
   return { state, latest, metrics, incidents };
 }
 
-export function comparePaths(external, local, userAgent = "") {
+export function isSafariProbeInconclusive(local, userAgent = "") {
   const safariFamily = /iPhone|iPad|iPod/.test(userAgent)
     || (/Safari\//.test(userAgent) && !/Chrome\/|Chromium\/|Edg\/|OPR\//.test(userAgent));
-  const allFailedBeforeTransport = local.validators?.length > 0
+  const allFailedDuringHandshake = local.validators?.length > 0
     && local.validators.every((validator) =>
-      !validator.webtransport?.ok
-      && (validator.error?.phase === "unsupported" || validator.error?.phase === "webtransport_ready"));
-  if (safariFamily && allFailedBeforeTransport) {
-    return "SAFARI/IOS TEST INCONCLUSIVE — CERTIFICATE-PINNED WEBTRANSPORT FAILED BEFORE JAM UP0; EXTERNAL RESULT ONLY";
+      !validator.webtransport?.ok && validator.error?.phase === "webtransport_ready");
+  return safariFamily && allFailedDuringHandshake;
+}
+
+export function isWebTransportUnavailable(local) {
+  return local.validators?.length > 0
+    && local.validators.every((validator) => validator.error?.phase === "unsupported");
+}
+
+export function comparePaths(external, local, userAgent = "") {
+  if (isSafariProbeInconclusive(local, userAgent)) {
+    return "SAFARI/IOS TEST INCONCLUSIVE — WEBTRANSPORT HTTP/3 NEGOTIATION FAILED BEFORE JAM UP0; EXTERNAL RESULT ONLY";
   }
-  if (local.validators?.length > 0 && local.validators.every((validator) => validator.error?.phase === "unsupported")) {
+  if (isWebTransportUnavailable(local)) {
     return "THIS BROWSER DOES NOT EXPOSE WEBTRANSPORT — EXTERNAL RESULT ONLY";
   }
 

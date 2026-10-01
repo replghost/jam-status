@@ -50,6 +50,7 @@ th { background: var(--ink); color: var(--paper); }
 td:last-child, th:last-child { border-right: 0; }
 .pass { color: var(--ok); font-weight: 800; }
 .fail { color: var(--alert); font-weight: 800; }
+.inconclusive { color: var(--muted); font-weight: 800; }
 .availability { display: grid; grid-template-columns: repeat(3, 1fr); }
 .availability > div { min-height: 170px; padding: 20px; border-right: 1px solid var(--line); }
 .availability label { font: 700 11px/1 ui-monospace, monospace; letter-spacing: .08em; }

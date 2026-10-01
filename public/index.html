@@ -28,7 +28,7 @@
     <section class="panel explanation">
       <header><span>01</span><h2>COMPARE YOUR PATH</h2></header>
       <div class="explanation-grid">
-        <p>The published result comes from an external GitHub-hosted Chromium probe. Run the same certificate-pinned WebTransport and JAM UP0 check from this browser to compare paths. Chrome is the reference browser; Safari/iOS support for certificate-pinned WebTransport varies by release.</p>
+        <p>The published result comes from an external GitHub-hosted Chromium probe. Run the same certificate-pinned WebTransport and JAM UP0 check from this browser to compare paths. Chrome is the reference browser. Safari 26 uses a different HTTP/3 WebTransport negotiation than the validators’ draft-02 endpoint; Safari failures before JAM UP0 are reported as inconclusive, not as validator downtime.</p>
         <div class="local-action">
           <button id="run-local" type="button">RUN TEST FROM THIS BROWSER &gt;&gt;&gt;</button>
           <output id="comparison" aria-live="polite">NO LOCAL RESULT</output>

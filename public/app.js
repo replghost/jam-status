@@ -1,5 +1,10 @@
 import { probeAll } from "./probe.js";
-import { comparePaths, describeValidatorProbe } from "./status.js";
+import {
+  comparePaths,
+  describeValidatorProbe,
+  isSafariProbeInconclusive,
+  isWebTransportUnavailable
+} from "./status.js";
 
 const byId = (id) => document.getElementById(id);
 const dataRoot = (document.documentElement.dataset.statusRoot ?? "./data").replace(/\/$/, "");
@@ -24,18 +29,20 @@ function mark(ok, yes = "PASS", no = "FAIL") {
   return `<span class="${ok ? "pass" : "fail"}">${ok ? yes : no}</span>`;
 }
 
-function renderLocalResult(result) {
+function renderLocalResult(result, inconclusive = false) {
   localValidators.replaceChildren(...result.validators.map((validator) => {
     const description = describeValidatorProbe(validator);
     const attempts = (validator.attempts ?? [validator]).map(describeValidatorProbe);
-    const status = attempts.length > 1
-      ? description.ok ? "PASS ON RETRY" : `FAIL AFTER ${attempts.length} ATTEMPTS`
-      : description.ok ? "PASS" : "FAIL";
+    const status = inconclusive
+      ? "INCONCLUSIVE"
+      : attempts.length > 1
+        ? description.ok ? "PASS ON RETRY" : `FAIL AFTER ${attempts.length} ATTEMPTS`
+        : description.ok ? "PASS" : "FAIL";
     const evidence = attempts.length > 1
       ? attempts.map((attempt, index) => `${index === 0 ? "FIRST" : "RETRY"} ${attempt.stage}: ${attempt.detail}`).join(" / ")
       : `${description.stage} · ${description.detail}`;
     const row = document.createElement("div");
-    row.className = `local-validator ${description.ok ? "pass" : "fail"}`;
+    row.className = `local-validator ${inconclusive ? "inconclusive" : description.ok ? "pass" : "fail"}`;
 
     const identity = document.createElement("b");
     identity.textContent = `V-${String(validator.id).padStart(2, "0")} / ${validator.endpoint}`;
@@ -91,7 +98,10 @@ localButton.addEventListener("click", async () => {
     const result = await probeAll({ retries: 1, retryDelayMs: 6_500 });
     globalThis.__jamStatusLocalResult = result;
     comparison.textContent = comparePaths(external, result, navigator.userAgent);
-    renderLocalResult(result);
+    renderLocalResult(
+      result,
+      isSafariProbeInconclusive(result, navigator.userAgent) || isWebTransportUnavailable(result)
+    );
   } catch (error) {
     comparison.textContent = `LOCAL MONITOR ERROR — ${error instanceof Error ? error.message : String(error)}`;
   } finally {

@@ -7,7 +7,7 @@
     "probe": "node scripts/run-probe.mjs",
     "build:status": "node scripts/update-status.mjs",
     "build:site": "node scripts/build-site.mjs",
-    "serve": "node scripts/serve.mjs public",
+    "serve": "node scripts/serve.mjs build",
     "test": "node --test"
   },
   "dependencies": {
