@@ -72,13 +72,13 @@ function renderStatus(status) {
 
   validatorsBody.innerHTML = (external?.validators ?? []).map((validator) => `
     <tr>
-      <td>V-${String(validator.id).padStart(2, "0")}</td>
-      <td>${validator.endpoint}</td>
-      <td>${mark(validator.webtransport.ok)}</td>
-      <td>${mark(validator.up0.handshake)}</td>
-      <td>${mark(validator.up0.announcement)}</td>
-      <td>${validator.webtransport.latency_ms === undefined ? "—" : `${validator.webtransport.latency_ms} MS`}</td>
-    </tr>`).join("") || "<tr><td colspan=\"6\">NO VALIDATOR OBSERVATIONS</td></tr>";
+      <td data-label="UNIT">V-${String(validator.id).padStart(2, "0")}</td>
+      <td data-label="ENDPOINT">${validator.endpoint}</td>
+      <td data-label="WEBTRANSPORT">${mark(validator.webtransport.ok)}</td>
+      <td data-label="UP0">${mark(validator.up0.handshake)}</td>
+      <td data-label="ANNOUNCEMENT">${mark(validator.up0.announcement)}</td>
+      <td data-label="LATENCY">${validator.webtransport.latency_ms === undefined ? "—" : `${validator.webtransport.latency_ms} MS`}</td>
+    </tr>`).join("") || "<tr class=\"validator-empty\"><td colspan=\"6\">NO VALIDATOR OBSERVATIONS</td></tr>";
 
   byId("availability").innerHTML = ["24h", "7d", "30d"].map((window) => {
     const metric = status.metrics?.[window] ?? {};

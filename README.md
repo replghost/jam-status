@@ -15,6 +15,8 @@ The monitor distinguishes four layers:
 
 A scheduled GitHub Actions runner checks every five minutes and publishes a rolling 90-day JSONL history and static dashboard to GitHub Pages. Two consecutive all-validator failures declare an incident; two consecutive non-down observations resolve it. The dashboard's **Run test from this browser** action executes the same WebTransport and UP0 check from the visitor's network. It retries only failed validators once after 6.5 seconds, then reports both attempts and their exact failure phases.
 
+On narrow screens, each validator observation is rendered as a two-column detail card so every endpoint, transport phase, announcement result, and latency remains visible without horizontal scrolling.
+
 ## Status interpretation
 
 | External monitor | Visitor test | Interpretation |
